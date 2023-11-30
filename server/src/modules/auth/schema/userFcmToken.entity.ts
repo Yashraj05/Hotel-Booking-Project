@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userFcmTokenSchema = new mongoose.Schema({
   userId: {
@@ -16,6 +16,6 @@ const userFcmTokenSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-const UserFcmTokenModel = mongoose.model('UserFcmToken', userFcmTokenSchema);
+ export const UserFcmTokenModel = mongoose.model('UserFcmToken', userFcmTokenSchema);
 
-module.exports = UserFcmTokenModel;
+

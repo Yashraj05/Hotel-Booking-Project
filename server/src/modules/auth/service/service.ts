@@ -1,5 +1,5 @@
 // GoogleUserService.ts
-
+import bcrypt from 'bcrypt';
 import { Service } from 'typedi';
 import { userModel } from '../schema/model';
 
@@ -13,10 +13,13 @@ export class UserService {
       if (existingUser) {
         done(null, existingUser);
       } else {
+        const randomPass = await this.generateRandomPassword();
+        console.log("random pass",randomPass);
+        let hashPassword = await bcrypt.hash(randomPass, 10).catch(err => console.log(err));
         const newuser = new userModel({
           userName: profile.displayName,
           email: profile.email,
-          password: await this.generateRandomPassword()
+          password: hashPassword
         });
 
         await newuser.save();

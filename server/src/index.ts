@@ -9,14 +9,24 @@ import {auth_router} from './modules/auth/router/authRouter';
 import { Strategy as GoogleStrategy, VerifyCallback} from 'passport-google-oauth2';
 import Container from 'typedi';
 import { UserService } from './modules/auth/service/service';
+import firebaseInitialize from './core/provider/firebaseProvider';
+
 dotenv.config();
 const conn:Promise<Mongoose> =  mongoose.connect(process.env.MONGO_URL || "");
 
 console.log(`MongoDB Connected`);
 const googleUserServiceInstance = Container.get(UserService);
 
+async function runFirebase() { 
+  await firebaseInitialize(); 
+}
+runFirebase()
+
 const app = express();
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  credentials: true, // Include credentials like cookies, authorization headers, etc.
+}));
 app.use(express.json());
 app.use(
   session({
@@ -47,7 +57,7 @@ passport.use(
     {
       clientID,
       clientSecret,
-      callbackURL: 'http://localhost:3000/auth/google/callback',
+      callbackURL: 'http://localhost:3001/auth/google/callback',
       passReqToCallback:true
     },
     (req: Request,accessToken: string, refreshToken: string, profile: any, done:VerifyCallback) => {

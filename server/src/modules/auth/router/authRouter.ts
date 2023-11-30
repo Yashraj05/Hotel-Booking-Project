@@ -10,7 +10,10 @@ auth_router.post('/signin' , signin);
 auth_router.get('/', (req, res) => {
     res.send("<button><a href='/auth/google'>Login With Google</a></button>")
 });
-  
+auth_router.get(
+    '/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 // Auth Callback
 auth_router.get('/auth/google/callback',
     passport.authenticate('google', {
@@ -18,6 +21,7 @@ auth_router.get('/auth/google/callback',
         failureRedirect: '/auth/google/callback/failure' // Add failure redirect route
     })
 );
+
   
 // Success 
 auth_router.get('/auth/google/callback/success', (req, res) => {
