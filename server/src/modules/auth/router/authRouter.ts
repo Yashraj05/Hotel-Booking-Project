@@ -32,6 +32,7 @@ auth_router.get('/auth/google/callback',
         failureRedirect: '/auth/google/callback/failure' // Add failure redirect route
     })
 );
+
   
 // Success 
 auth_router.get('/auth/google/callback/success', (req, res) => {

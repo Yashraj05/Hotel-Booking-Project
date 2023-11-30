@@ -9,27 +9,24 @@ import {auth_router} from './modules/auth/router/authRouter';
 import { Strategy as GoogleStrategy, VerifyCallback} from 'passport-google-oauth2';
 import Container from 'typedi';
 import { UserService } from './modules/auth/service/service';
+import firebaseInitialize from './core/provider/firebaseProvider';
+
 dotenv.config();
 const conn:Promise<Mongoose> =  mongoose.connect(process.env.MONGO_URL || "");
 
 console.log(`MongoDB Connected`);
 const googleUserServiceInstance = Container.get(UserService);
 
+async function runFirebase() { 
+  await firebaseInitialize(); 
+}
+runFirebase()
+
 const app = express();
-
-app.use(cors());
-// Add Access Control Allow Origin headers
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
-
-
+app.use(cors({
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  credentials: true, // Include credentials like cookies, authorization headers, etc.
+}));
 app.use(express.json());
 app.use(
   session({
