@@ -3,6 +3,22 @@ import jwt from 'jsonwebtoken';
 import { Request , Response } from 'express';
 import { userModel } from '../schema/model';
 import dotenv from 'dotenv'
+dotenv.config();
+import passport from "passport";
+import strategy from "passport-facebook";
+
+const generateRandomPassword=()=>{
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[{]};:<>|,./?';
+    let password = '';
+    for (let i = 0; i < 6; i++) { 
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset[randomIndex];
+    }
+    return password;
+}
+
+
+const FacebookStrategy = strategy.Strategy;
 
 export const signup= async(req : Request,res : Response)=>{
     if( !req.body.userName || !req.body.email || !req.body.password || !req.body.role){
@@ -30,21 +46,69 @@ export const signup= async(req : Request,res : Response)=>{
 }
 
 export const signin= async(req : Request ,res : Response)=>{
+      
     if(!req.body.password  || !req.body.email){
-        return res.status(505).send("Please Enter Users Details")
+        return res.status(505).send("Please Enter Users Details");
     }
     let user = await userModel.findOne({email : req.body.email});
     if(!user){
         return res.status(404).send({message : `User Not Found`});
     }
-    let password = await bcrypt.compare(req.body.password , user.password );
+    let password = await bcrypt.compare(req.body.password , user.password || '');
     if(!password){
         return res.status(400).send({message : "Invalid Password"});
     }
         const token = jwt.sign(
-            { userid : user._id, email : user.email, role : user.role },
+            { userid : user._id },
             process.env.SECRET_CODE || "MI6",
             {expiresIn : "24h"},
         )
     return res.status(201).send({token : token});
 }
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+  });
+  
+  passport.deserializeUser(function(obj, done) {
+    done(null, obj || null);
+  });
+
+passport.use(
+    new FacebookStrategy(
+      {
+        clientID: process.env.APP_ID || '',
+        clientSecret: process.env.APP_SECRET || '',
+        callbackURL: process.env.FACEBOOK_CALLBACK_URL || '',
+        profileFields: ["email", "name"]
+      },
+
+      async function(accessToken, refreshToken, profile : any, done) {
+        const password = generateRandomPassword();
+        const { first_name, last_name ,id} = profile._json;
+
+        const user = await userModel.findOne({facebookId : id}).exec();
+        console.log(user);
+        if(user){
+            done(null , user);
+            return "";
+        }
+        const userData = {
+          userName : first_name,
+          password : password,
+          email : `${first_name+last_name+password}@gmail.com`,
+          facebookId : id
+        };
+        new userModel(userData).save()
+          .then((user) => {
+            console.log("Login Successfully")
+            done(null , user)
+        })
+          .catch((error) =>{ console.log(error)
+            done(null , error)
+        });
+      }
+    )
+  );
+
+  

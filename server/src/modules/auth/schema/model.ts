@@ -4,14 +4,13 @@ const usersSchema = new mongoose.Schema({
     userName: {
       type: String,
       trim: true,
-      unique: true,
       lowercase: true,
       required: [true, 'User name filed is required']
     },
     email: {
       type: String,
       unique: true,
-      required: [true, 'Email filed is required'],
+      required: [true, 'Email filed is required']
     },
     password: {
       type: String,
@@ -19,9 +18,9 @@ const usersSchema = new mongoose.Schema({
     },
     facebookId: {
       type: String,
+      unique : true,
       default : null
     },
-
     role: {
       type: String,
       enum: ['admin', 'user', 'merchant' , 'staff'],
