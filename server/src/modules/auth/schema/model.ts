@@ -17,6 +17,11 @@ const usersSchema = new mongoose.Schema({
       type: String,
       required: [true, 'Password filed is required'],
     },
+    facebookId: {
+      type: String,
+      default : null
+    },
+
     role: {
       type: String,
       enum: ['admin', 'user', 'merchant' , 'staff'],
@@ -37,7 +42,7 @@ const usersSchema = new mongoose.Schema({
     hotelId : {
         type : String,
         default : null
-    }
+    },
 
  });
 
