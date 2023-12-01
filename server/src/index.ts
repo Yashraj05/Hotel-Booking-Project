@@ -10,6 +10,7 @@ import { Strategy as GoogleStrategy, VerifyCallback} from 'passport-google-oauth
 import Container from 'typedi';
 import { UserService } from './modules/auth/service/service';
 import firebaseInitialize from './core/provider/firebaseProvider';
+import { hotel_router } from './modules/hotel/router/hotel.router';
 
 dotenv.config();
 const conn:Promise<Mongoose> =  mongoose.connect(process.env.MONGO_URL || "");
@@ -75,6 +76,7 @@ passport.use(
 passport.serializeUser(googleUserServiceInstance.serializeUser);
 passport.deserializeUser(googleUserServiceInstance.deserializeUser);
 app.use('/' , auth_router);
+app.use('/' , hotel_router);
 
 const Port = process.env.PORT || 5000;
 console.log(Port)

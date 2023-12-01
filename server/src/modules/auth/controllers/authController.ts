@@ -22,6 +22,7 @@ const FacebookStrategy = strategy.Strategy;
 import { UserFcmTokenModel } from '../schema/userFcmToken.entity';
 
 export const signup = async (req: Request, res: Response) => {
+  console.log("I am hit")
     if (!req.body.userName || !req.body.email || !req.body.password || !req.body.role) {
         return res.status(400).send(`Please enter email and password`);
     }
@@ -68,7 +69,7 @@ export const signin = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-        { userid: user._id, email: user.email, role: user.role },
+        { userid: user._id , role : user.role},
         process.env.SECRET_CODE || "MI6",
         { expiresIn: "24h" },
     )
